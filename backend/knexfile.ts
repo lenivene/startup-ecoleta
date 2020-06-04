@@ -2,6 +2,7 @@ import path from "path";
 
 module.exports = {
   client: "sqlite3",
+  useNullAsDefault: true,
   connection: {
     filename: path.resolve(__dirname, "src", "database", "database.sqlite"),
   },
@@ -11,5 +12,4 @@ module.exports = {
   seeds: {
     directory: path.resolve(__dirname, "src", "database", "seeds"),
   },
-  useNullAsDefault: true,
 };
