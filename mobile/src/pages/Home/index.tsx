@@ -1,5 +1,14 @@
-import React from "react";
-import { StyleSheet, ImageBackground, View, Image, Text } from "react-native";
+import React, { useState } from "react";
+import {
+  StyleSheet,
+  ImageBackground,
+  View,
+  Image,
+  Text,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
 import { RectButton } from "react-native-gesture-handler";
 import { Feather as IconFe } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -7,35 +16,66 @@ import { useNavigation } from "@react-navigation/native";
 const Home: React.FC = () => {
   const navigation = useNavigation();
 
+  // Inputs
+  const [uf, setUf] = useState("");
+  const [city, setCity] = useState("");
+
   const handleNavigateToPoints = () => {
-    navigation.navigate("Points");
+    navigation.navigate("Points", { uf, city });
   };
 
   return (
-    <ImageBackground
-      source={require("../../assets/home-background.png")}
-      style={styles.container}
-      imageStyle={{ width: 274, height: 368 }}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.main}>
-        <Image source={require("../../assets/logo.png")} />
-        <Text style={styles.title}>Seu marketplace de coleta de resíduos</Text>
-        <Text style={styles.description}>
-          Ajudamos pessoas a encontrarem pontos de coleta de forma eficiente.
-        </Text>
-      </View>
-
-      <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={handleNavigateToPoints}>
-          <View style={styles.buttonIcon}>
-            <Text>
-              <IconFe name="arrow-right" color="#FFF" size={24} />
+      <ImageBackground
+        source={require("../../assets/home-background.png")}
+        style={styles.container}
+        imageStyle={{ width: 274, height: 368 }}
+      >
+        <View style={styles.main}>
+          <Image source={require("../../assets/logo.png")} />
+          <View>
+            <Text style={styles.title}>
+              Seu marketplace de coleta de resíduos
+            </Text>
+            <Text style={styles.description}>
+              Ajudamos pessoas a encontrarem pontos de coleta de forma
+              eficiente.
             </Text>
           </View>
-          <Text style={styles.buttonText}>Entrar</Text>
-        </RectButton>
-      </View>
-    </ImageBackground>
+        </View>
+
+        <View style={styles.footer}>
+          <TextInput
+            style={styles.input}
+            value={uf}
+            onChangeText={setUf}
+            maxLength={2}
+            autoCapitalize="characters"
+            autoCorrect={false}
+            placeholder="Digite a UF"
+          />
+          <TextInput
+            style={styles.input}
+            value={city}
+            onChangeText={setCity}
+            autoCorrect={false}
+            placeholder="Digite a Cidade"
+          />
+
+          <RectButton style={styles.button} onPress={handleNavigateToPoints}>
+            <View style={styles.buttonIcon}>
+              <Text>
+                <IconFe name="arrow-right" color="#FFF" size={24} />
+              </Text>
+            </View>
+            <Text style={styles.buttonText}>Entrar</Text>
+          </RectButton>
+        </View>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 };
 
