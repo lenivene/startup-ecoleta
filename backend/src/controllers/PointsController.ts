@@ -1,6 +1,8 @@
 import { Request, Response } from "express";
 import knex from "../database/connection";
 
+// Utils
+import getReqUrlUpload from "../utils/getReqUrlUpload";
 class PointsController {
   async index(req: Request, res: Response) {
     const { city, uf, items } = req.query;
@@ -17,13 +19,25 @@ class PointsController {
       .distinct()
       .select("points.*");
 
-    return res.json(points);
+    const serializedPoints = points.map((point) => {
+      return {
+        ...point,
+        image_url: getReqUrlUpload(point.image, req),
+      };
+    });
+
+    return res.json(serializedPoints);
   }
 
   async show(req: Request, res: Response) {
     const { id } = req.params;
 
     const point = await knex("points").where("id", id).first();
+
+    const serializedPoint = {
+      ...point,
+      image_url: getReqUrlUpload(point.image, req),
+    };
 
     if (!point) {
       return res.status(400).json({ message: "Point not found!" });
@@ -34,7 +48,7 @@ class PointsController {
       .where("point_items.point_id", id)
       .select("items.title");
 
-    return res.json({ point, items });
+    return res.json({ point: serializedPoint, items });
   }
 
   async create(req: Request, res: Response) {
@@ -52,8 +66,7 @@ class PointsController {
     const trx = await knex.transaction();
 
     const data = {
-      image:
-        "https://images.unsplash.com/photo-1525328437458-0c4d4db7cab4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=70",
+      image: req.file.filename,
       name,
       email,
       whatsapp,
@@ -65,12 +78,15 @@ class PointsController {
 
     const [point_id] = await trx("points").insert(data);
 
-    const pointItems = items.map((item_id: number) => {
-      return {
-        item_id,
-        point_id,
-      };
-    });
+    const pointItems = items
+      .split(",")
+      .map((item: string) => item.trim())
+      .map((item_id: number) => {
+        return {
+          item_id,
+          point_id,
+        };
+      });
 
     await trx("point_items").insert(pointItems);
 

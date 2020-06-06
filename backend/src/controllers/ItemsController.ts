@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import knex from "../database/connection";
 
+// Utils
+import getReqUrlUpload from "../utils/getReqUrlUpload";
+
 class ItemsController {
   async index(req: Request, res: Response) {
     const items = await knex("items").select("*");
@@ -11,7 +14,7 @@ class ItemsController {
       return {
         id,
         title,
-        image_url: `${req.protocol}://${req.get("host")}/uploads/${item.image}`,
+        image_url: getReqUrlUpload(item.image, req),
       };
     });
 
