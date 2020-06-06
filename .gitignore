@@ -319,3 +319,6 @@ Temporary Items
 .apdisk
 
 # End of https://www.toptal.com/developers/gitignore/api/node,react,reactnative
+
+# Arquivos que usei para upload de teste
+/backend/uploads/*.jpg
