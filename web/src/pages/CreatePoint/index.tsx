@@ -1,4 +1,4 @@
-import React, { useState, useEffect, FormEvent } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import { LeafletMouseEvent } from "leaflet";
@@ -12,6 +12,9 @@ import api from "../../services/api";
 
 // Assets
 import logo from "../../assets/logo.svg";
+
+// Components
+import Dropzone from "../../components/Dropzone";
 
 // Types
 type Item = {
@@ -30,6 +33,7 @@ const CreatePoint: React.FC = () => {
   const [cities, setCities] = useState<string[]>([]);
 
   // Inputs
+  const [selectedFile, setSelectedFile] = useState<File>();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -132,17 +136,27 @@ const CreatePoint: React.FC = () => {
     const [latitude, longitude] = selectMapPosition;
     const items = selectItems;
 
-    const data = {
+    let form_data = new FormData();
+
+    const data: any = {
       ...formData,
       uf,
       city,
-      latitude,
-      longitude,
-      items,
+      latitude: String(latitude),
+      longitude: String(longitude),
+      items: items.join(","),
     };
 
+    if (selectedFile) {
+      data.image = selectedFile;
+    }
+
+    for (var key in data) {
+      form_data.append(key, data[key]);
+    }
+
     try {
-      await api.post("/points", data);
+      await api.post("/points", form_data);
 
       alert("Ponto de coleta criado!");
     } catch (error) {
@@ -166,6 +180,9 @@ const CreatePoint: React.FC = () => {
           <br />
           ponto de coleta
         </h1>
+
+        <Dropzone onFileUploaded={setSelectedFile} />
+
         <fieldset>
           <legend>
             <h2>Dados</h2>
